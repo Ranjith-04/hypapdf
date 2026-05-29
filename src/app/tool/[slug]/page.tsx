@@ -8,10 +8,12 @@ import JSZip from "jszip";
 import confetti from "canvas-confetti";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import PDFPageRenderer from "@/components/PDFPageRenderer";
-import SignaturePad from "@/components/SignaturePad";
+import PDFPageRenderer from "@/components/pdf/PDFPageRenderer";
+import SignaturePad from "@/components/pdf/SignaturePad";
 import * as pdfjsLib from "pdfjs-dist";
-import { TOOLS, PDFTool } from "@/lib/toolsConfig";
+import { TOOLS, PDFTool } from "@/lib/pdf/pdfToolsConfig";
+import { IMAGE_TOOLS } from "@/lib/image/imageToolsConfig";
+import ImageWorkspace from "@/components/image/ImageWorkspace";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = "https://unpkg.com/pdfjs-dist@5.7.284/build/pdf.worker.min.mjs";
 
@@ -28,7 +30,7 @@ import {
   imagesToPDF,
   protectPDF,
   unlockPDF,
-} from "@/lib/pdfUtils";
+} from "@/lib/pdf/pdfUtils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -48,7 +50,25 @@ export default function ToolPage({ params }: PageProps) {
   const resolvedParams = use(params);
   const router = useRouter();
   const slug = resolvedParams.slug;
+
+  const isImageTool = IMAGE_TOOLS.some((t) => t.slug === slug);
+
+  if (isImageTool) {
+    return (
+      <div className="flex flex-col min-h-screen bg-slate-950 text-slate-50 relative selection:bg-cyan-500 selection:text-white">
+        {/* Background glow orbs */}
+        <div className="absolute top-[-10%] left-[-10%] size-[500px] rounded-full bg-cyan-500/5 blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-[10%] right-[-10%] size-[500px] rounded-full bg-indigo-500/5 blur-[120px] pointer-events-none" />
+        
+        <Header />
+        <ImageWorkspace slug={slug} />
+        <Footer />
+      </div>
+    );
+  }
+
   const tool = TOOLS.find((t) => t.slug === slug) as PDFTool;
+
 
   const [files, setFiles] = useState<File[]>([]);
   const [fileBuffers, setFileBuffers] = useState<ArrayBuffer[]>([]);
